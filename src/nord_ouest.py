@@ -1,103 +1,49 @@
-"""
-=============================================================
-  FICHIER : nord_ouest.py
-  RÔLE    : Algorithme du coin Nord-Ouest
-  SECTION : 2.1 (fonction 3 du projet)
-=============================================================
+# ============================================================
+#  3. ALGORITHME NORD-OUEST
+# ============================================================
 
-PRINCIPE DE L'ALGORITHME :
-    On part de la case en haut à gauche (Nord-Ouest) du tableau.
-    À chaque étape, on alloue le maximum possible à la case courante,
-    c'est-à-dire min(provision disponible, commande restante).
-    
-    - Si la provision du fournisseur i est épuisée → on descend (i+1)
-    - Si la commande du client j est satisfaite   → on avance (j+1)
-    - Si les deux sont épuisés simultanément      → cas dégénéré,
-      on crée une arête fictive à 0 et on avance
-
-COMPLEXITÉ : O(n + m) — on parcourt chaque ligne et colonne une seule fois.
-
-REMARQUE : Cet algorithme ignore totalement les coûts → la proposition
-initiale obtenue est souvent loin de l'optimum, mais elle est rapide
-à calculer et toujours réalisable.
-"""
-
-
-def nord_ouest(n, m, provisions, commandes, verbose=True):
+def nord_ouest(n, m, provisions, commandes):
     """
-    Construit une proposition initiale de transport par la méthode
-    du coin Nord-Ouest.
+    Proposition initiale par la methode du coin Nord-Ouest.
+    Retourne (proposition, base_set).
 
-    Paramètres :
-        n          (int)  : nombre de fournisseurs
-        m          (int)  : nombre de clients
-        provisions (list) : copie des provisions [P1..Pn]  ← on va les modifier
-        commandes  (list) : copie des commandes  [C1..Cm]  ← on va les modifier
-        verbose    (bool) : afficher le détail des allocations
-
-    Retourne :
-        transport  (list[list]) : matrice n×m des quantités transportées
-        base       (set)        : ensemble des tuples (i,j) alloués
-                                  (= les arêtes de l'arbre de transport)
+    Pseudo-code :
+      i, j <- 0, 0
+      Tant que i < n et j < m :
+        b[i][j] <- min(prov[i], comm[j])
+        prov[i] -= val ; comm[j] -= val
+        Si prov[i] == 0 et comm[j] == 0 (degenere) :
+          avancer i, puis j seulement si on n'est pas sur la derniere colonne
+        Sinon si prov[i] == 0 : i++
+        Sinon : j++
     """
+    print("\n" + "=" * 60)
+    print("  ALGORITHME NORD-OUEST")
+    print("=" * 60)
 
-    if verbose:
-        print("\n╔══ ALGORITHME NORD-OUEST ══╗")
+    prov = list(provisions)
+    comm = list(commandes)
+    prop = [[0] * m for _ in range(n)]
+    base_set = set()
 
-    # ── Initialisation ────────────────────────────────────────────────────────
-    # Matrice de transport : toutes les cases à 0 au départ
-    transport = [[0] * m for _ in range(n)]
-
-    # La BASE contient les cases allouées (arêtes de l'arbre couvrant)
-    # Un arbre couvrant d'un graphe biparti n×m a exactement n+m-1 arêtes
-    base = set()
-
-    # Copies locales pour ne pas modifier les listes originales
-    prov = provisions[:]   # provisions restantes par fournisseur
-    cmd  = commandes[:]    # commandes restantes par client
-
-    # ── Curseur : on commence en haut à gauche (i=0, j=0) ────────────────────
     i, j = 0, 0
-
-    # ── Boucle principale : on avance jusqu'à épuiser tout ───────────────────
     while i < n and j < m:
+        val = min(prov[i], comm[j])
+        prop[i][j] = val
+        base_set.add((i, j))
+        prov[i] -= val
+        comm[j] -= val
+        print(f"    Affectation b[P{i+1}][C{j+1}] = {val}")
 
-        # Quantité allouée = minimum entre ce que Pi peut fournir
-        # et ce que Cj a commandé
-        q = min(prov[i], cmd[j])
-
-        # On stocke cette allocation dans la matrice et dans la base
-        transport[i][j] = q
-        base.add((i, j))
-
-        if verbose:
-            print(f"  b[P{i+1}, C{j+1}] = min(provision={prov[i]}, "
-                  f"commande={cmd[j]}) = {q}")
-
-        # On déduit q des provisions et commandes restantes
-        prov[i] -= q
-        cmd[j]  -= q
-
-        # ── Décision : où aller ensuite ? ────────────────────────────────────
-        if prov[i] == 0 and cmd[j] == 0:
-            # CAS DÉGÉNÉRÉ : les deux s'épuisent en même temps
-            # On avance sur la ligne (convention) sauf si c'est la dernière
-            if i + 1 < n:
-                i += 1
-            else:
-                j += 1
-
-        elif prov[i] == 0:
-            # Le fournisseur i est épuisé → on passe au fournisseur suivant
+        if prov[i] == 0 and comm[j] == 0:
+            # Cas degenere : avancer les deux, mais j seulement si possible
             i += 1
-
+            if i < n and j + 1 < m:
+                j += 1
+        elif prov[i] == 0:
+            i += 1
         else:
-            # La commande j est satisfaite → on passe au client suivant
             j += 1
 
-    if verbose:
-        print(f"\n  → Base obtenue : {len(base)} arêtes "
-              f"(requis pour arbre : n+m-1 = {n+m-1})")
-        print()
-
-    return transport, base
+    print(f"  => {len(base_set)} cases de base (attendu : {n+m-1})")
+    return prop, base_set

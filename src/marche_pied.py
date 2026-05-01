@@ -1,602 +1,393 @@
-"""
-=============================================================
-  FICHIER : marche_pied.py
-  RÔLE    : Méthode du marche-pied avec potentiel (MODI)
-  SECTION : 2.1 (fonction 6 du projet)
-=============================================================
-
-PRINCIPE GÉNÉRAL :
-    C'est l'algorithme d'optimisation principal. À partir d'une proposition
-    initiale (obtenue par NO ou BH), on l'améliore itérativement jusqu'à
-    trouver la solution optimale.
-
-    Chaque itération :
-      1. Rendre la base non-dégénérée (arbre couvrant = acyclique + connexe)
-      2. Calculer les potentiels u[i] et v[j]
-      3. Calculer les coûts marginaux c[i][j] - u[i] - v[j] (hors base)
-      4. S'il existe un coût marginal NÉGATIF → pas optimal
-         → Ajouter la meilleure arête améliorante
-         → Maximiser le transport sur le cycle formé
-         → Supprimer l'arête devenue nulle
-      5. Si tous les coûts marginaux sont ≥ 0 → OPTIMAL, on arrête
-
-GRAPHE BIPARTI :
-    La proposition de transport est modélisée comme un graphe biparti :
-    - Sommets gauches  : fournisseurs P1..Pn  (numérotés 0..n-1)
-    - Sommets droits   : clients C1..Cm       (numérotés n..n+m-1)
-    - Arêtes           : les cases de la BASE
-    Une base valide = arbre couvrant = n+m-1 arêtes, connexe, sans cycle.
-"""
-import os
-import sys
-
-
-# ── Configurer le chemin IMMÉDIATEMENT ─────────────────────────────────────
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-# ── Import en haut du fichier (jamais à l'intérieur des fonctions) ────────────
 from collections import deque
-from utilitaires import (afficher_proposition,
-                              afficher_couts_potentiels,
-                              afficher_couts_marginaux,
-                              calculer_cout_total)
+import copy
 
+from src.utils import _adj, _lbl
+from src.affichage import (
+    afficher_proposition,
+    afficher_potentiels,
+    afficher_table_couts_potentiels,
+    afficher_table_marginaux
+)
+from src.utils import cout_total
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CONSTRUCTION DU GRAPHE BIPARTI
-# ─────────────────────────────────────────────────────────────────────────────
-
-def construire_adjacence(n, m, base):
+def detecter_cycle_bfs(n, m, base_set):
     """
-    Construit la liste d'adjacence du graphe biparti à partir de la base.
+    Detecte un cycle via BFS sur le graphe biparti.
+    Retourne (True, cycle_noeuds) ou (False, None).
 
-    Numérotation des sommets :
-        Fournisseur i  → sommet i       (0 ≤ i < n)
-        Client j       → sommet n+j     (n ≤ n+j < n+m)
-
-    Exemple : base={(0,1),(1,0)} avec n=2, m=2
-        adj[0] = [3]   (P1 connecté à C2 = sommet 3)
-        adj[3] = [0]   (C2 connecté à P1)
-        adj[1] = [2]   (P2 connecté à C1 = sommet 2)
-        adj[2] = [1]
+    Pseudo-code :
+      Pour chaque noeud non visite ayant des aretes :
+        BFS ; si on rencontre un voisin deja visite != parent => cycle
+        Reconstituer le cycle par remontee des parents
     """
-    adj = {k: [] for k in range(n + m)}
-    for (i, j) in base:
-        adj[i].append(n + j)      # fournisseur i ↔ client j
-        adj[n + j].append(i)
-    return adj
+    g = _adj(n, m, base_set)
+    visite = {}
+    parent = {}
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# TEST D'ACYCLICITÉ + DÉTECTION DU CYCLE (BFS)
-# ─────────────────────────────────────────────────────────────────────────────
-
-def detecter_cycle_bfs(n, m, base):
-    """
-    Détecte un cycle dans le graphe biparti par PARCOURS EN LARGEUR (BFS).
-
-    Principe BFS de détection de cycle :
-        On visite les sommets niveau par niveau.
-        Si on tombe sur un sommet DÉJÀ VISITÉ qui n'est PAS le parent
-        du sommet courant → il existe un cycle.
-        On remonte alors les chemins vers leur ancêtre commun (LCA)
-        pour reconstruire le cycle.
-
-    Retourne :
-        (True,  liste de sommets formant le cycle)  si cycle détecté
-        (False, None)                               si acyclique
-    """
-    adj = construire_adjacence(n, m, base)
-
-    visited = set()
-    parent  = {}   # parent[sommet] = sommet précédent dans le BFS
-
-    for depart in range(n + m):
-        # On ne démarre que sur les sommets qui ont des arêtes
-        if depart in visited or not adj[depart]:
+    for start in range(n + m):
+        if start in visite or not g[start]:
             continue
+        queue = deque([start])
+        visite[start] = True
+        parent[start] = -1
 
-        # Initialisation du BFS depuis ce sommet
-        file = deque([depart])
-        visited.add(depart)
-        parent[depart] = -1   # -1 = pas de parent (racine)
-
-        while file:
-            u = file.popleft()
-
-            for v in adj[u]:
-                if v not in visited:
-                    # Nouveau sommet : on le visite
-                    visited.add(v)
+        while queue:
+            u = queue.popleft()
+            for v in g[u]:
+                if v not in visite:
+                    visite[v] = True
                     parent[v] = u
-                    file.append(v)
-
-                elif parent.get(u, -1) != v:
-                    # Sommet déjà visité ET pas le parent de u
-                    # → CYCLE DÉTECTÉ entre u et v
-
-                    # Reconstruire le chemin depuis u jusqu'à la racine
+                    queue.append(v)
+                elif v != parent[u]:
+                    # Reconstituer le cycle : remonter de u et v jusqu'a leur ancetre commun
                     chemin_u = []
-                    cur = u
-                    while cur != -1:
-                        chemin_u.append(cur)
-                        cur = parent.get(cur, -1)
-
-                    # Reconstruire le chemin depuis v jusqu'à la racine
+                    x = u
+                    while x != -1:
+                        chemin_u.append(x); x = parent[x]
                     chemin_v = []
-                    cur = v
-                    while cur != -1:
-                        chemin_v.append(cur)
-                        cur = parent.get(cur, -1)
+                    x = v
+                    while x != -1:
+                        chemin_v.append(x); x = parent[x]
+                    set_u = {node: idx for idx, node in enumerate(chemin_u)}
+                    ancetre = next((node for node in chemin_v if node in set_u), None)
+                    if ancetre is None:
+                        cycle = chemin_u + [v]
+                    else:
+                        idx_anc = set_u[ancetre]
+                        part_u = chemin_u[:idx_anc + 1]
+                        idx_anc_v = chemin_v.index(ancetre)
+                        part_v = chemin_v[:idx_anc_v]
+                        cycle = part_u + list(reversed(part_v))
 
-                    # Trouver l'ancêtre commun le plus proche (LCA)
-                    ensemble_u = {s: k for k, s in enumerate(chemin_u)}
-                    lca = None
-                    lca_idx_v = -1
-                    for k_v, s in enumerate(chemin_v):
-                        if s in ensemble_u:
-                            lca = s
-                            lca_idx_v = k_v
-                            break
+                    print(f"  *** Cycle detecte : {' -> '.join(_lbl(k,n) for k in cycle)} ***")
+                    return True, cycle
 
-                    if lca is None:
-                        continue
-
-                    lca_idx_u = ensemble_u[lca]
-
-                    # Cycle = LCA → ... → u → v → ... → LCA
-                    branche_u = chemin_u[:lca_idx_u][::-1]
-                    branche_v = chemin_v[:lca_idx_v]
-                    cycle = [lca] + branche_u + branche_v[::-1]
-                    cycle.append(lca)   # fermer le cycle
-
-                    # Vérifier que toutes les arêtes du cycle existent
-                    if _cycle_valide(cycle, adj):
-                        return True, cycle
-
-    return False, None   # aucun cycle détecté → graphe acyclique
+    return False, None
 
 
-def _cycle_valide(cycle, adj):
+def tester_connexe_bfs(n, m, base_set):
     """
-    Vérifie que chaque arête consécutive du cycle existe dans le graphe.
-    Sécurité supplémentaire après reconstruction du cycle par BFS.
+    Teste la connexite via BFS.
+    Retourne (est_connexe, composantes).
+
+    Pseudo-code :
+      BFS depuis le 1er noeud actif
+      Si tous les noeuds actifs sont atteints => connexe
     """
-    for k in range(len(cycle) - 1):
-        u, v = cycle[k], cycle[k + 1]
-        if v not in adj[u]:
-            return False
-    return True
+    g = _adj(n, m, base_set)
+    actifs = set(k for k in range(n + m) if g[k])
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# TEST DE CONNEXITÉ (BFS)
-# ─────────────────────────────────────────────────────────────────────────────
-
-def tester_connexite_bfs(n, m, base):
-    """
-    Teste si le graphe biparti est CONNEXE par parcours en largeur (BFS).
-
-    Un graphe est connexe s'il n'a qu'une seule composante connexe,
-    c'est-à-dire qu'on peut atteindre tout sommet depuis n'importe quel autre.
-
-    Retourne :
-        connexe      (bool)       : True si connexe
-        composantes  (list[list]) : liste des composantes connexes
-                                    (chaque composante = liste de sommets)
-    """
-    adj = construire_adjacence(n, m, base)
-
-    # On ne considère que les sommets actifs (qui ont au moins une arête)
-    sommets_actifs = set()
-    for (i, j) in base:
-        sommets_actifs.add(i)
-        sommets_actifs.add(n + j)
-
-    if not sommets_actifs:
+    if not actifs:
         return True, []
 
-    visited     = set()
+    visite = set()
     composantes = []
 
-    for depart in sorted(sommets_actifs):
-        if depart in visited:
+    for start in actifs:
+        if start in visite:
             continue
+        comp = set()
+        queue = deque([start])
+        visite.add(start); comp.add(start)
+        while queue:
+            u = queue.popleft()
+            for v in g[u]:
+                if v not in visite:
+                    visite.add(v); comp.add(v); queue.append(v)
+        composantes.append(comp)
 
-        # BFS depuis ce sommet → découvre toute sa composante connexe
-        composante = []
-        file = deque([depart])
-        visited.add(depart)
-
-        while file:
-            u = file.popleft()
-            composante.append(u)
-            for v in adj[u]:
-                if v not in visited:
-                    visited.add(v)
-                    file.append(v)
-
-        composantes.append(composante)
-
-    connexe = len(composantes) <= 1
-    return connexe, composantes
+    if len(composantes) == 1:
+        return True, composantes
+    else:
+        print(f"\n  *** Graphe NON connexe : {len(composantes)} composante(s) ***")
+        for idx, comp in enumerate(composantes):
+            print(f"    Composante {idx+1} : {sorted(_lbl(k,n) for k in comp)}")
+        return False, composantes
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# MAXIMISATION DU TRANSPORT SUR UN CYCLE
-# ─────────────────────────────────────────────────────────────────────────────
+# ============================================================
+#  7. MAXIMISATION SUR UN CYCLE
+# ============================================================
 
-def maximiser_sur_cycle(n, m, transport, base, cycle, verbose=True):
+def maximiser_sur_cycle(n, m, proposition, cycle, base_set, arete_entree=None):
     """
-    Maximise le transport sur un cycle détecté (algorithme du marche-pied).
+    Maximise le transport sur un cycle detecte.
+    L'arete d'entree (si fournie) recoit le signe (+).
+    delta = min des cases (-).
+    Retourne (proposition_modifiee, base_set_modifie).
 
-    PRINCIPE :
-        On alterne les signes + et - sur les arêtes du cycle :
-            arête 0 (nouvelle) : b[i][j] + δ
-            arête 1            : b[i][j] - δ
-            arête 2            : b[i][j] + δ
-            ...
-        où δ = min des valeurs sur les arêtes au signe "-"
-        Après maximisation, au moins une arête "-" devient nulle
-        et est supprimée de la base.
-
-    Paramètres :
-        cycle : liste de sommets bipartis formant un cycle fermé
-                Exemple : [0, 3, 1, 2, 0]
-
-    Retourne :
-        transport mis à jour
-        base      mise à jour
+    Pseudo-code :
+      Construire les paires (i,j) du cycle dans l'ordre
+      Alterner +/- en commencant par + sur l'arete d'entree
+      delta = min(b[i][j]) pour les cases (-)
+      Appliquer : cases (+) += delta, cases (-) -= delta
+      Retirer de la base les cases devenues nulles
     """
-
-    # ── Convertir le cycle (sommets bipartis) en arêtes (i, j) ───────────────
-    aretes = []
+    # Construire les paires (i,j) dans l'ordre du cycle
+    paires = []
     for k in range(len(cycle) - 1):
         u, v = cycle[k], cycle[k + 1]
-        # Dans le graphe biparti : u<n = fournisseur, u>=n = client
-        if u < n:
-            aretes.append((u, v - n))    # fournisseur → client
-        else:
-            aretes.append((v, u - n))    # client → fournisseur (on retourne)
+        if u < n and v >= n:
+            paires.append((u, v - n))
+        elif v < n and u >= n:
+            paires.append((v, u - n))
 
-    # ── Identifier les arêtes "moins" (indices impairs) ───────────────────────
-    aretes_moins = [(i, j) for k, (i, j) in enumerate(aretes) if k % 2 == 1]
+    if not paires:
+        return proposition, base_set
 
-    # δ = minimum des valeurs transportées sur les arêtes "moins"
-    delta = min(transport[i][j] for (i, j) in aretes_moins)
+    # Placer l'arete d'entree en premier (signe +)
+    if arete_entree is not None and arete_entree in paires:
+        idx = paires.index(arete_entree)
+        paires = paires[idx:] + paires[:idx]
 
-    if verbose:
-        # Affichage du cycle avec les noms lisibles
-        noms = [f"P{s+1}" if s < n else f"C{s-n+1}" for s in cycle]
-        print(f"\n  Cycle détecté : {' → '.join(noms)}")
-        print(f"  Conditions sur le cycle :")
-        for k, (i, j) in enumerate(aretes):
-            signe = "+" if k % 2 == 0 else "-"
-            print(f"    b[P{i+1}, C{j+1}] {signe} δ   "
-                  f"(valeur actuelle = {transport[i][j]})")
-        print(f"  δ = {delta}")
+    plus_cases  = paires[0::2]
+    moins_cases = paires[1::2]
 
-    # ── Appliquer les modifications ───────────────────────────────────────────
+    print("\n  Conditions sur le cycle :")
+    for idx, (i, j) in enumerate(paires):
+        signe = "+" if idx % 2 == 0 else "-"
+        print(f"    b[P{i+1}][C{j+1}] = {proposition[i][j]}  ({signe})")
+
+    if not moins_cases:
+        print("  Aucune case (-) : pas de modification possible.")
+        return proposition, base_set
+
+    delta = min(proposition[i][j] for i, j in moins_cases)
+    print(f"\n  delta = {delta}")
+
+    prop = copy.deepcopy(proposition)
+    new_base = set(base_set)
     supprimees = []
-    for k, (i, j) in enumerate(aretes):
-        if k % 2 == 0:
-            transport[i][j] += delta    # arête "plus" : on augmente
-        else:
-            transport[i][j] -= delta    # arête "moins" : on diminue
-            if transport[i][j] == 0:
-                # Cette arête quitte la base (valeur nulle)
-                supprimees.append((i, j))
-                base.discard((i, j))
 
-    if verbose:
-        noms_supp = [f"b[P{i+1},C{j+1}]" for (i, j) in supprimees]
-        print(f"  Arête(s) supprimée(s) de la base : {noms_supp}")
+    for i, j in plus_cases:
+        prop[i][j] += delta
+        new_base.add((i, j))
+    for i, j in moins_cases:
+        prop[i][j] -= delta
+        if prop[i][j] == 0:
+            supprimees.append((i, j))
+            new_base.discard((i, j))
 
-    return transport, base
+    if supprimees:
+        print("  Arete(s) supprimee(s) : " +
+              ", ".join(f"b[P{i+1}][C{j+1}]" for i, j in supprimees))
+    else:
+        print("  Aucune arete supprimee (delta = 0).")
+
+    return prop, new_base
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CORRECTION : RENDRE LE GRAPHE ACYCLIQUE
-# ─────────────────────────────────────────────────────────────────────────────
+# ============================================================
+#  8. CALCUL DES POTENTIELS
+# ============================================================
 
-def corriger_cycles(n, m, transport, base, verbose=True):
+def calculer_potentiels(n, m, A, base_set):
     """
-    Détecte et supprime tous les cycles de la base par maximisation répétée.
-    On boucle jusqu'à ce que le graphe soit acyclique.
-    """
-    nb = 0
-    while True:
-        a_cycle, cycle = detecter_cycle_bfs(n, m, base)
-        if not a_cycle:
-            break
-        nb += 1
-        if verbose:
-            print(f"\n  [Suppression cycle #{nb}]")
-        transport, base = maximiser_sur_cycle(n, m, transport, base,
-                                              cycle, verbose)
-    return transport, base
+    Calcule les potentiels u_i et v_j.
+    On pose u[0] = 0 et on resout u[i] + v[j] = a[i][j] pour chaque case de base.
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# CORRECTION : RENDRE LE GRAPHE CONNEXE
-# ─────────────────────────────────────────────────────────────────────────────
-
-def corriger_connexite(n, m, transport, base, cout, verbose=True):
-    """
-    Ajoute des arêtes fictives (valeur 0, dégénérées) pour rendre
-    le graphe connexe.
-
-    On trie les candidats par coût croissant et on ajoute seulement
-    les arêtes qui ne créent pas de cycle.
-    """
-    connexe, composantes = tester_connexite_bfs(n, m, base)
-    if connexe:
-        return transport, base
-
-    if verbose:
-        print(f"\n  [Connexité] {len(composantes)} composantes détectées :")
-        for k, comp in enumerate(composantes):
-            noms = [f"P{s+1}" if s < n else f"C{s-n+1}" for s in comp]
-            print(f"    Composante {k+1} : {noms}")
-
-    # Candidats hors base triés par coût croissant
-    candidats = sorted(
-        (cout[i][j], i, j)
-        for i in range(n)
-        for j in range(m)
-        if (i, j) not in base
-    )
-
-    for _, i, j in candidats:
-        # Re-vérifier à chaque ajout
-        connexe, _ = tester_connexite_bfs(n, m, base)
-        if connexe:
-            break
-
-        # Tester si l'ajout de (i,j) crée un cycle
-        base.add((i, j))
-        a_cycle, _ = detecter_cycle_bfs(n, m, base)
-
-        if a_cycle:
-            # Crée un cycle → on enlève et on essaie le suivant
-            base.discard((i, j))
-            continue
-
-        # Ajout validé — arête fictive avec valeur 0 (dégénérée)
-        if verbose:
-            print(f"    + Arête fictive b[P{i+1},C{j+1}] = 0 "
-                  f"(coût = {cout[i][j]})")
-
-    return transport, base
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# RENDRE LA BASE VALIDE (ARBRE COUVRANT)
-# ─────────────────────────────────────────────────────────────────────────────
-
-def rendre_arbre(n, m, transport, base, cout, verbose=True):
-    """
-    S'assure que la base est un arbre couvrant valide :
-        1. Supprimer tous les cycles (par maximisation)
-        2. Ajouter des arêtes fictives si non connexe
-    Une base valide a exactement n+m-1 arêtes.
-    """
-    transport, base = corriger_cycles(n, m, transport, base, verbose)
-    transport, base = corriger_connexite(n, m, transport, base, cout, verbose)
-
-    if verbose:
-        print(f"\n  Base après correction : {len(base)} arêtes "
-              f"(requis : {n+m-1})")
-    return transport, base
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# CALCUL DES POTENTIELS (méthode MODI)
-# ─────────────────────────────────────────────────────────────────────────────
-
-def calculer_potentiels(n, m, cout, base):
-    """
-    Calcule les potentiels u[i] et v[j] à partir des arêtes de la base.
-
-    Système d'équations : u[i] + v[j] = c[i][j]  pour tout (i,j) ∈ base
-    Convention de départ : u[0] = 0
-
-    On résout par propagation itérative :
-        - Si u[i] connu et v[j] inconnu → v[j] = c[i][j] - u[i]
-        - Si v[j] connu et u[i] inconnu → u[i] = c[i][j] - v[j]
-    On répète jusqu'à ce que tous les potentiels soient calculés.
+    Pseudo-code :
+      u[0] = 0
+      Propager par fixpoint :
+        Si u[i] connu et v[j] inconnu => v[j] = a[i][j] - u[i]
+        Si v[j] connu et u[i] inconnu => u[i] = a[i][j] - v[j]
     """
     u = [None] * n
     v = [None] * m
-    u[0] = 0   # convention : premier potentiel fournisseur = 0
+    u[0] = 0
 
-    changement = True
-    while changement:
-        changement = False
-        for (i, j) in base:
+    changed = True
+    while changed:
+        changed = False
+        for (i, j) in base_set:
             if u[i] is not None and v[j] is None:
-                v[j] = cout[i][j] - u[i]
-                changement = True
+                v[j] = A[i][j] - u[i]; changed = True
             elif v[j] is not None and u[i] is None:
-                u[i] = cout[i][j] - v[j]
-                changement = True
+                u[i] = A[i][j] - v[j]; changed = True
 
-    # Sécurité : potentiels restés None → on met 0
+    # Potentiels non determines (graphe non connexe)
     for i in range(n):
-        if u[i] is None:
-            u[i] = 0
+        if u[i] is None: u[i] = 0
     for j in range(m):
-        if v[j] is None:
-            v[j] = 0
+        if v[j] is None: v[j] = 0
 
     return u, v
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# RECHERCHE DE L'ARÊTE AMÉLIORANTE
-# ─────────────────────────────────────────────────────────────────────────────
+# ============================================================
+#  9. COMPLETION DU GRAPHE (non connexe -> arbre couvrant)
+# ============================================================
 
-def trouver_arete_ameliorante(n, m, cout, base, u, v):
+def completer_graphe(n, m, A, proposition, base_set):
     """
-    Cherche l'arête hors base avec le coût marginal le plus négatif.
+    Ajoute des aretes epsilon (valeur 0) pour rendre le graphe connexe.
+    On choisit les aretes hors-base de cout minimal qui relient deux composantes.
+    Retourne (proposition_modifiee, base_set_modifie).
 
-    Coût marginal de (i,j) = c[i][j] - u[i] - v[j]
-
-    Si négatif → ajouter cette arête améliore la solution.
-    On prend celle avec la valeur la plus négative (amélioration maximale).
-
-    Retourne :
-        (i, j, coût_marginal)  si une arête améliorante existe
-        None                   si tous les coûts marginaux ≥ 0 (OPTIMAL)
+    Pseudo-code :
+      Trier les cases hors-base par cout croissant
+      Tant que non connexe :
+        Ajouter la case de cout minimal reliant deux composantes distinctes
     """
-    meilleure    = None
-    meilleur_val = 0   # on cherche strictement < 0
+    prop = copy.deepcopy(proposition)
+    new_base = set(base_set)
 
-    for i in range(n):
-        for j in range(m):
-            if (i, j) not in base:
-                marginal = cout[i][j] - u[i] - v[j]
-                if marginal < meilleur_val:
-                    meilleur_val = marginal
-                    meilleure    = (i, j, marginal)
+    cases_vides = sorted(
+        ((A[i][j], i, j) for i in range(n) for j in range(m) if (i, j) not in new_base),
+        key=lambda x: x[0]
+    )
 
-    return meilleure
+    for _, i, j in cases_vides:
+        connexe, composantes = tester_connexe_bfs(n, m, new_base)
+        if connexe:
+            break
+        # Verifier que cette arete relie deux composantes differentes
+        test_base = new_base | {(i, j)}
+        _, comp_test = tester_connexe_bfs(n, m, test_base)
+        if len(comp_test) < len(composantes):
+            prop[i][j] = 0   # valeur epsilon
+            new_base.add((i, j))
+            print(f"  Arete fictive ajoutee : b[P{i+1}][C{j+1}] = 0 (epsilon)")
+
+    return prop, new_base
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ORIENTATION DU CYCLE
-# ─────────────────────────────────────────────────────────────────────────────
-
-def orienter_cycle(cycle, i_new, j_new, n):
+def rendre_non_degenere(n, m, A, proposition, base_set):
     """
-    Réoriente le cycle pour que la nouvelle arête (i_new, j_new)
-    soit en PREMIÈRE position avec le signe +.
-
-    Cela garantit que la nouvelle arête reçoit +δ (son flux augmente),
-    ce qui est nécessaire pour améliorer la solution.
+    Corrige la degenerescence :
+    1. Elimine tous les cycles par maximisation repetee
+    2. Complete si non connexe
+    Retourne (proposition_corrigee, base_set_corrige).
     """
-    L = len(cycle) - 1   # longueur du cycle sans le sommet répété
+    prop = copy.deepcopy(proposition)
+    new_base = set(base_set)
 
-    for k in range(L):
-        # Chercher i_new → n+j_new (ordre fournisseur → client)
-        if cycle[k] == i_new and cycle[(k + 1) % L] == n + j_new:
-            rotated = [cycle[(k + r) % L] for r in range(L)] + [cycle[k]]
-            return rotated
+    # Etape 1 : eliminer tous les cycles
+    for _ in range(200):
+        cycle_existe, cycle = detecter_cycle_bfs(n, m, new_base)
+        if not cycle_existe:
+            break
+        prop, new_base = maximiser_sur_cycle(n, m, prop, cycle, new_base)
 
-        # Ou n+j_new → i_new (ordre inverse → on inverse le cycle)
-        if cycle[k] == n + j_new and cycle[(k + 1) % L] == i_new:
-            rev = cycle[-2::-1] + [cycle[-2]]
-            for kk in range(L):
-                if rev[kk] == i_new and rev[(kk + 1) % L] == n + j_new:
-                    rotated = [rev[(kk + r) % L] for r in range(L)] + [rev[kk]]
-                    return rotated
+    # Etape 2 : rendre connexe
+    connexe, _ = tester_connexe_bfs(n, m, new_base)
+    if not connexe:
+        prop, new_base = completer_graphe(n, m, A, prop, new_base)
 
-    return cycle   # cas de secours
+    return prop, new_base
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ALGORITHME PRINCIPAL : MARCHE-PIED AVEC POTENTIEL
-# ─────────────────────────────────────────────────────────────────────────────
+# ============================================================
+#  10. CYCLE ELEMENTAIRE POUR L'ARETE AMELIORANTE
+# ============================================================
 
-def marche_pied(n, m, cout, transport, base, provisions, commandes,
-                verbose=True):
+def trouver_cycle_pour_arete(n, m, base_set, i_star, j_star):
     """
-    Algorithme principal du marche-pied avec potentiel (méthode MODI).
-
-    Itère jusqu'à atteindre la solution optimale.
-
-    Paramètres :
-        n, m       : dimensions du problème
-        cout       : matrice des coûts
-        transport  : proposition initiale (modifiée en place)
-        base       : arêtes actives initiales (modifiée en place)
-        provisions : liste des provisions
-        commandes  : liste des commandes
-        verbose    : afficher tout le détail des itérations
-
-    Retourne :
-        transport (list[list]) : proposition optimale
-        base      (set)        : arêtes de la solution optimale
-        cout_opt  (int/float)  : coût total optimal
+    Trouve le cycle elementaire forme en ajoutant l'arete (i_star, j_star)
+    dans l'arbre de la base (SANS cette arete).
+    BFS depuis i_star vers (n+j_star), puis fermeture du cycle.
+    Retourne la liste des noeuds du cycle (premier = dernier).
     """
+    base_sans = base_set - {(i_star, j_star)}
+    g = _adj(n, m, base_sans)
 
-    if verbose:
-        print("\n" + "═" * 62)
-        print("  MÉTHODE DU MARCHE-PIED AVEC POTENTIEL")
-        print("═" * 62)
+    start = i_star
+    end = n + j_star
+    visite = {start: None}
+    queue = deque([start])
 
-    for iteration in range(1, 100_001):
+    while queue:
+        u = queue.popleft()
+        if u == end:
+            break
+        for v in g[u]:
+            if v not in visite:
+                visite[v] = u
+                queue.append(v)
 
-        if verbose:
-            print(f"\n{'─'*62}")
-            print(f"  ITÉRATION {iteration}")
-            print(f"{'─'*62}")
-            ct = calculer_cout_total(n, m, cout, transport)
-            print(f"  Coût actuel : {ct}")
-            afficher_proposition(n, m, transport, base,
-                                 provisions, commandes, cout,
-                                 titre="PROPOSITION COURANTE")
+    if end not in visite:
+        return [start, end, start]
 
-        # ── Étape 1 : Corriger la base si elle n'est pas un arbre ─────────────
-        nb_requis = n + m - 1
-        if len(base) != nb_requis:
-            if verbose:
-                print(f"  Base dégénérée : {len(base)} arêtes "
-                      f"(requis : {nb_requis}) → correction...")
-            transport, base = rendre_arbre(n, m, transport, base,
-                                           cout, verbose)
+    path = []
+    cur = end
+    while cur is not None:
+        path.append(cur); cur = visite.get(cur)
+    path.reverse()
+    return path + [path[0]]
 
-        # ── Étape 2 : Calculer les potentiels ─────────────────────────────────
-        u, v = calculer_potentiels(n, m, cout, base)
 
-        if verbose:
-            print(f"\n  Potentiels calculés :")
-            print(f"    u = {[f'u{i+1}={u[i]}' for i in range(n)]}")
-            print(f"    v = {[f'v{j+1}={v[j]}' for j in range(m)]}")
-            afficher_couts_potentiels(n, m, u, v)
-            afficher_couts_marginaux(n, m, cout, u, v, base)
+# ============================================================
+#  11. METHODE DU MARCHE-PIED AVEC POTENTIEL
+# ============================================================
 
-        # ── Étape 3 : Chercher une arête améliorante ──────────────────────────
-        ameliorante = trouver_arete_ameliorante(n, m, cout, base, u, v)
+def marche_pied(n, m, A, proposition_initiale, base_set_init, provisions, commandes):
+    """
+    Methode du marche-pied avec potentiel.
 
-        if ameliorante is None:
-            # Tous les coûts marginaux ≥ 0 → solution optimale
-            if verbose:
-                print("  ✓ Tous les coûts marginaux ≥ 0 → Solution OPTIMALE !")
+    Pseudo-code :
+      prop, base <- proposition_initiale
+      Tant que non optimal (max 500 iterations) :
+        1. Corriger degenerescence (cycles + connexite)
+        2. Calculer potentiels u, v
+        3. Afficher tables couts potentiels et marginaux
+        4. Si tous marginaux >= 0 => optimal, stop
+        5. Sinon trouver arete ameliorante (i*,j*)
+               Trouver le cycle elementaire
+               Maximiser sur ce cycle
+      Afficher proposition optimale et cout final
+    """
+    prop = copy.deepcopy(proposition_initiale)
+    base = set(base_set_init)
+    MAX_ITER = 500
+
+    for iteration in range(1, MAX_ITER + 1):
+        print("\n" + "#" * 65)
+        print(f"  MARCHE-PIED - Iteration {iteration}")
+        print("#" * 65)
+
+        cout = cout_total(n, m, A, prop)
+        print(f"\n  Cout total courant : {cout}")
+        afficher_proposition(n, m, A, prop, provisions, commandes, base_set=base)
+
+        # Verification et correction de la degenerescence
+        nb_base = len(base)
+        attendu = n + m - 1
+        print(f"  Cases de base : {nb_base} (attendu : {attendu})")
+        prop, base = rendre_non_degenere(n, m, A, prop, base)
+        nb_base = len(base)
+        if nb_base != attendu:
+            print(f"  Apres correction : {nb_base} cases de base")
+
+        # Calcul et affichage des potentiels
+        u, v = calculer_potentiels(n, m, A, base)
+        afficher_potentiels(n, m, u, v)
+        afficher_table_couts_potentiels(n, m, A, u, v, provisions, commandes)
+        meilleure, marg_min = afficher_table_marginaux(n, m, A, u, v, base)
+
+        if meilleure is None:
+            print("  *** SOLUTION OPTIMALE ATTEINTE ***")
             break
 
-        i_new, j_new, marg = ameliorante
-        if verbose:
-            print(f"\n  → Arête améliorante : b[P{i_new+1}, C{j_new+1}]"
-                  f"  (coût marginal = {marg})")
+        i_star, j_star = meilleure
+        print(f"  Meilleure arete ameliorante : b[P{i_star+1}][C{j_star+1}]"
+              f"  (cout marginal = {marg_min})")
 
-        # ── Étape 4 : Ajouter l'arête et trouver le cycle formé ───────────────
-        base.add((i_new, j_new))
-        a_cycle, cycle = detecter_cycle_bfs(n, m, base)
+        # Trouver le cycle elementaire et maximiser
+        cycle = trouver_cycle_pour_arete(n, m, base, i_star, j_star)
+        print(f"  Cycle elementaire : {' -> '.join(_lbl(k,n) for k in cycle)}")
 
-        if not a_cycle:
-            if verbose:
-                print("  (pas de cycle après ajout → arête dégénérée conservée)")
-            continue
+        prop[i_star][j_star] = 0   # sera mis a jour par maximiser_sur_cycle
+        base.add((i_star, j_star))
+        prop, base = maximiser_sur_cycle(n, m, prop, cycle, base,
+                                          arete_entree=(i_star, j_star))
+    else:
+        print(f"  *** ATTENTION : limite de {MAX_ITER} iterations atteinte ***")
 
-        # ── Étape 5 : Orienter le cycle et maximiser ───────────────────────────
-        cycle = orienter_cycle(cycle, i_new, j_new, n)
-
-        if verbose:
-            print(f"\n  Maximisation sur le cycle :")
-
-        transport, base = maximiser_sur_cycle(n, m, transport, base,
-                                              cycle, verbose)
-
-    # ── Solution finale ────────────────────────────────────────────────────────
-    cout_opt = calculer_cout_total(n, m, cout, transport)
-
-    if verbose:
-        print(f"\n{'═'*62}")
-        print(f"  SOLUTION OPTIMALE — Coût total = {cout_opt}")
-        print(f"{'═'*62}")
-        afficher_proposition(n, m, transport, base,
-                             provisions, commandes, cout,
-                             titre="PROPOSITION OPTIMALE")
-
-    return transport, base, cout_opt
+    cout_final = cout_total(n, m, A, prop)
+    print("\n" + "=" * 65)
+    print("  RESULTAT FINAL")
+    print("=" * 65)
+    afficher_proposition(n, m, A, prop, provisions, commandes,
+                          base_set=base, label="PROPOSITION OPTIMALE")
+    print(f"  Cout total optimal : {cout_final}")
+    return prop, base, cout_final
