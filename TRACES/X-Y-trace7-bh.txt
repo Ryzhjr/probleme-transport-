@@ -1,0 +1,145 @@
+======================================================================
+TRACE PROBLEME 7
+======================================================================
+
+=================================================================
+  Fichier : donnees/probleme7.txt
+  Algorithme initial : Balas-Hammer
+=================================================================
+
+======================================
+  MATRICE DES COUTS
+======================================
+             C1      C2      Provis.
+  ------------------------------------
+  P1          50      20       100
+  P2          10      50       200
+  P3          50      40       100
+  P4          45      35       200
+  ------------------------------------
+  Comm.       300     300
+
+
+============================================================
+  ALGORITHME BALAS-HAMMER
+============================================================
+
+  --- Iteration 1 ---
+  Penalites lignes  : P1=30, P2=40, P3=10, P4=10
+  Penalites colonnes: C1=35, C2=15
+  Penalite maximale = 40 sur ligne P2
+  Affectation b[P2][C1] = 200  (cout=10)
+  => Fermeture de la ligne P2
+
+  --- Iteration 2 ---
+  Penalites lignes  : P1=30, P3=10, P4=10
+  Penalites colonnes: C1=5, C2=15
+  Penalite maximale = 30 sur ligne P1
+  Affectation b[P1][C2] = 100  (cout=20)
+  => Fermeture de la ligne P1
+
+  --- Iteration 3 ---
+  Penalites lignes  : P3=10, P4=10
+  Penalites colonnes: C1=5, C2=5
+  Penalite maximale = 10 sur ligne P3
+  Affectation b[P3][C2] = 100  (cout=40)
+  => Fermeture de la ligne P3
+
+  --- Iteration 4 ---
+  Penalites lignes  : P4=10
+  Penalites colonnes: C1=45, C2=35
+  Penalite maximale = 45 sur colonne C1
+  Affectation b[P4][C1] = 100  (cout=45)
+  => Fermeture de la colonne C1
+
+  --- Iteration 5 ---
+  Penalites lignes  : P4=35
+  Penalites colonnes: C2=35
+  Penalite maximale = 35 sur ligne P4
+  Affectation b[P4][C2] = 100  (cout=35)
+  => Fermeture de la ligne P4
+  => Fermeture de la colonne C2
+  => 5 cases de base (attendu : 5)
+
+  Cout de la proposition initiale : 16000
+
+======================================
+  PROPOSITION INITIALE
+======================================
+             C1      C2      Provis.
+  ------------------------------------
+  P1       -     (100)         100
+  P2     (200)     -           200
+  P3       -     (100)         100
+  P4     (100)   (100)         200
+  ------------------------------------
+  Comm.    300     300   
+
+
+#################################################################
+  MARCHE-PIED - Iteration 1
+#################################################################
+
+  Cout total courant : 16000
+
+======================================
+  PROPOSITION DE TRANSPORT
+======================================
+             C1      C2      Provis.
+  ------------------------------------
+  P1       -     (100)         100
+  P2     (200)     -           200
+  P3       -     (100)         100
+  P4     (100)   (100)         200
+  ------------------------------------
+  Comm.    300     300   
+
+  Cases de base : 5 (attendu : 5)
+
+  POTENTIELS
+  --------------------------------------------------
+    Fournisseurs : u[P1]=0  u[P2]=-20  u[P3]=20  u[P4]=15
+    Clients      : v[C1]=30  v[C2]=20
+
+
+==========================
+  TABLE DES COUTS POTENTIELS  (u_i + v_j)
+==========================
+            C1    C2  
+  ------------------------
+  P1      30    20  
+  P2      10    0   
+  P3      50    40  
+  P4      45    35  
+
+
+==========================
+  TABLE DES COUTS MARGINAUX  (a_ij - u_i - v_j)
+  (cases de base affichees comme '--')
+==========================
+            C1    C2  
+  ------------------------
+  P1      20    --  
+  P2      --    50  
+  P3      0     --  
+  P4      --    --  
+
+  *** SOLUTION OPTIMALE ATTEINTE ***
+
+=================================================================
+  RESULTAT FINAL
+=================================================================
+
+======================================
+  PROPOSITION OPTIMALE
+======================================
+             C1      C2      Provis.
+  ------------------------------------
+  P1       -     (100)         100
+  P2     (200)     -           200
+  P3       -     (100)         100
+  P4     (100)   (100)         200
+  ------------------------------------
+  Comm.    300     300   
+
+  Cout total optimal : 16000

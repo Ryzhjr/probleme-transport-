@@ -1,0 +1,409 @@
+======================================================================
+TRACE PROBLEME 11
+======================================================================
+
+=================================================================
+  Fichier : donnees/probleme11.txt
+  Algorithme initial : Balas-Hammer
+=================================================================
+
+=======================================================================================================
+  MATRICE DES COUTS
+=======================================================================================================
+              C1      C2      C3      C4      C5      C6      C7      C8      C9     C10      Provis.
+  -----------------------------------------------------------------------------------------------------
+  P1            1       2       3       4       5       6       7       8       9      10        10
+  P2           11      12      13      14      15      16      17      18      19      20        20
+  P3           21      22      23      24      25      26      27      28      29      30        30
+  P4           31      32      33      34      35      36      37      38      39      40        40
+  P5           41      41      43      44      45      46      47      48      49      50        50
+  P6           51      52      53      54      55      56      57      58      59      60        60
+  P7           61      62      63      64      65      66      67      68      69      70        70
+  P8           71      72      73      74      75      76      77      78      79      80        80
+  P9           81      82      83      84      85      86      87      88      89      90        90
+  P10          91      92      93      94      95      96      97      98      99     100       100
+  P11         101     102     103     104     105     106     107     108     109     110       110
+  P12         111     112     113     114     115     116     117     118     119     120       120
+  P13         121     122     123     124     125     126     127     128     129     130       130
+  P14         131     132     133     134     135     136     137     138     139     140       140
+  P15         141     142     143     144     145     146     147     148     149     150       150
+  P16         151     152     153     154     155     156     157     158     159     160       160
+  P17         161     162     163     164     165     166     167     168     169     170       170
+  P18         171     172     173     174     175     176     177     178     179     180       180
+  P19         181     182     183     184     185     186     187     188     189     190       190
+  P20         191     192     193     194     195     196     197     198     199     200       200
+  -----------------------------------------------------------------------------------------------------
+  Comm.       120     140     160     180     200     220     240     260     280     300
+
+
+============================================================
+  ALGORITHME BALAS-HAMMER
+============================================================
+
+  --- Iteration 1 ---
+  Penalites lignes  : P1=1, P2=1, P3=1, P4=1, P5=0, P6=1, P7=1, P8=1, P9=1, P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C1=10, C2=10, C3=10, C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C1
+  Affectation b[P1][C1] = 10  (cout=1)
+  => Fermeture de la ligne P1
+
+  --- Iteration 2 ---
+  Penalites lignes  : P2=1, P3=1, P4=1, P5=0, P6=1, P7=1, P8=1, P9=1, P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C1=10, C2=10, C3=10, C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C1
+  Affectation b[P2][C1] = 20  (cout=11)
+  => Fermeture de la ligne P2
+
+  --- Iteration 3 ---
+  Penalites lignes  : P3=1, P4=1, P5=0, P6=1, P7=1, P8=1, P9=1, P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C1=10, C2=10, C3=10, C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C1
+  Affectation b[P3][C1] = 30  (cout=21)
+  => Fermeture de la ligne P3
+
+  --- Iteration 4 ---
+  Penalites lignes  : P4=1, P5=0, P6=1, P7=1, P8=1, P9=1, P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C1=10, C2=9, C3=10, C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C1
+  Affectation b[P4][C1] = 40  (cout=31)
+  => Fermeture de la ligne P4
+
+  --- Iteration 5 ---
+  Penalites lignes  : P5=0, P6=1, P7=1, P8=1, P9=1, P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C1=10, C2=11, C3=10, C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 11 sur colonne C2
+  Affectation b[P5][C2] = 50  (cout=41)
+  => Fermeture de la ligne P5
+
+  --- Iteration 6 ---
+  Penalites lignes  : P6=1, P7=1, P8=1, P9=1, P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C1=10, C2=10, C3=10, C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C1
+  Affectation b[P6][C1] = 20  (cout=51)
+  => Fermeture de la colonne C1
+
+  --- Iteration 7 ---
+  Penalites lignes  : P6=1, P7=1, P8=1, P9=1, P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C2=10, C3=10, C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C2
+  Affectation b[P6][C2] = 40  (cout=52)
+  => Fermeture de la ligne P6
+
+  --- Iteration 8 ---
+  Penalites lignes  : P7=1, P8=1, P9=1, P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C2=10, C3=10, C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C2
+  Affectation b[P7][C2] = 50  (cout=62)
+  => Fermeture de la colonne C2
+
+  --- Iteration 9 ---
+  Penalites lignes  : P7=1, P8=1, P9=1, P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C3=10, C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C3
+  Affectation b[P7][C3] = 20  (cout=63)
+  => Fermeture de la ligne P7
+
+  --- Iteration 10 ---
+  Penalites lignes  : P8=1, P9=1, P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C3=10, C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C3
+  Affectation b[P8][C3] = 80  (cout=73)
+  => Fermeture de la ligne P8
+
+  --- Iteration 11 ---
+  Penalites lignes  : P9=1, P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C3=10, C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C3
+  Affectation b[P9][C3] = 60  (cout=83)
+  => Fermeture de la colonne C3
+
+  --- Iteration 12 ---
+  Penalites lignes  : P9=1, P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C4
+  Affectation b[P9][C4] = 30  (cout=84)
+  => Fermeture de la ligne P9
+
+  --- Iteration 13 ---
+  Penalites lignes  : P10=1, P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C4
+  Affectation b[P10][C4] = 100  (cout=94)
+  => Fermeture de la ligne P10
+
+  --- Iteration 14 ---
+  Penalites lignes  : P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C4=10, C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C4
+  Affectation b[P11][C4] = 50  (cout=104)
+  => Fermeture de la colonne C4
+
+  --- Iteration 15 ---
+  Penalites lignes  : P11=1, P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C5
+  Affectation b[P11][C5] = 60  (cout=105)
+  => Fermeture de la ligne P11
+
+  --- Iteration 16 ---
+  Penalites lignes  : P12=1, P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C5
+  Affectation b[P12][C5] = 120  (cout=115)
+  => Fermeture de la ligne P12
+
+  --- Iteration 17 ---
+  Penalites lignes  : P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C5=10, C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C5
+  Affectation b[P13][C5] = 20  (cout=125)
+  => Fermeture de la colonne C5
+
+  --- Iteration 18 ---
+  Penalites lignes  : P13=1, P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C6
+  Affectation b[P13][C6] = 110  (cout=126)
+  => Fermeture de la ligne P13
+
+  --- Iteration 19 ---
+  Penalites lignes  : P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C6=10, C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C6
+  Affectation b[P14][C6] = 110  (cout=136)
+  => Fermeture de la colonne C6
+
+  --- Iteration 20 ---
+  Penalites lignes  : P14=1, P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C7
+  Affectation b[P14][C7] = 30  (cout=137)
+  => Fermeture de la ligne P14
+
+  --- Iteration 21 ---
+  Penalites lignes  : P15=1, P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C7
+  Affectation b[P15][C7] = 150  (cout=147)
+  => Fermeture de la ligne P15
+
+  --- Iteration 22 ---
+  Penalites lignes  : P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C7=10, C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C7
+  Affectation b[P16][C7] = 60  (cout=157)
+  => Fermeture de la colonne C7
+
+  --- Iteration 23 ---
+  Penalites lignes  : P16=1, P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C8
+  Affectation b[P16][C8] = 100  (cout=158)
+  => Fermeture de la ligne P16
+
+  --- Iteration 24 ---
+  Penalites lignes  : P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C8=10, C9=10, C10=10
+  Penalite maximale = 10 sur colonne C8
+  Affectation b[P17][C8] = 160  (cout=168)
+  => Fermeture de la colonne C8
+
+  --- Iteration 25 ---
+  Penalites lignes  : P17=1, P18=1, P19=1, P20=1
+  Penalites colonnes: C9=10, C10=10
+  Penalite maximale = 10 sur colonne C9
+  Affectation b[P17][C9] = 10  (cout=169)
+  => Fermeture de la ligne P17
+
+  --- Iteration 26 ---
+  Penalites lignes  : P18=1, P19=1, P20=1
+  Penalites colonnes: C9=10, C10=10
+  Penalite maximale = 10 sur colonne C9
+  Affectation b[P18][C9] = 180  (cout=179)
+  => Fermeture de la ligne P18
+
+  --- Iteration 27 ---
+  Penalites lignes  : P19=1, P20=1
+  Penalites colonnes: C9=10, C10=10
+  Penalite maximale = 10 sur colonne C9
+  Affectation b[P19][C9] = 90  (cout=189)
+  => Fermeture de la colonne C9
+
+  --- Iteration 28 ---
+  Penalites lignes  : P19=190, P20=200
+  Penalites colonnes: C10=10
+  Penalite maximale = 200 sur ligne P20
+  Affectation b[P20][C10] = 200  (cout=200)
+  => Fermeture de la ligne P20
+
+  --- Iteration 29 ---
+  Penalites lignes  : P19=190
+  Penalites colonnes: C10=190
+  Penalite maximale = 190 sur ligne P19
+  Affectation b[P19][C10] = 100  (cout=190)
+  => Fermeture de la ligne P19
+  => Fermeture de la colonne C10
+  => 29 cases de base (attendu : 29)
+
+  Cout de la proposition initiale : 279150
+
+=======================================================================================================
+  PROPOSITION INITIALE
+=======================================================================================================
+              C1      C2      C3      C4      C5      C6      C7      C8      C9     C10      Provis.
+  -----------------------------------------------------------------------------------------------------
+  P1       (10)     -       -       -       -       -       -       -       -       -            10
+  P2       (20)     -       -       -       -       -       -       -       -       -            20
+  P3       (30)     -       -       -       -       -       -       -       -       -            30
+  P4       (40)     -       -       -       -       -       -       -       -       -            40
+  P5        -      (50)     -       -       -       -       -       -       -       -            50
+  P6       (20)    (40)     -       -       -       -       -       -       -       -            60
+  P7        -      (50)    (20)     -       -       -       -       -       -       -            70
+  P8        -       -      (80)     -       -       -       -       -       -       -            80
+  P9        -       -      (60)    (30)     -       -       -       -       -       -            90
+  P10       -       -       -     (100)     -       -       -       -       -       -           100
+  P11       -       -       -      (50)    (60)     -       -       -       -       -           110
+  P12       -       -       -       -     (120)     -       -       -       -       -           120
+  P13       -       -       -       -      (20)   (110)     -       -       -       -           130
+  P14       -       -       -       -       -     (110)    (30)     -       -       -           140
+  P15       -       -       -       -       -       -     (150)     -       -       -           150
+  P16       -       -       -       -       -       -      (60)   (100)     -       -           160
+  P17       -       -       -       -       -       -       -     (160)    (10)     -           170
+  P18       -       -       -       -       -       -       -       -     (180)     -           180
+  P19       -       -       -       -       -       -       -       -      (90)   (100)         190
+  P20       -       -       -       -       -       -       -       -       -     (200)         200
+  -----------------------------------------------------------------------------------------------------
+  Comm.    120     140     160     180     200     220     240     260     280     300   
+
+
+#################################################################
+  MARCHE-PIED - Iteration 1
+#################################################################
+
+  Cout total courant : 279150
+
+=======================================================================================================
+  PROPOSITION DE TRANSPORT
+=======================================================================================================
+              C1      C2      C3      C4      C5      C6      C7      C8      C9     C10      Provis.
+  -----------------------------------------------------------------------------------------------------
+  P1       (10)     -       -       -       -       -       -       -       -       -            10
+  P2       (20)     -       -       -       -       -       -       -       -       -            20
+  P3       (30)     -       -       -       -       -       -       -       -       -            30
+  P4       (40)     -       -       -       -       -       -       -       -       -            40
+  P5        -      (50)     -       -       -       -       -       -       -       -            50
+  P6       (20)    (40)     -       -       -       -       -       -       -       -            60
+  P7        -      (50)    (20)     -       -       -       -       -       -       -            70
+  P8        -       -      (80)     -       -       -       -       -       -       -            80
+  P9        -       -      (60)    (30)     -       -       -       -       -       -            90
+  P10       -       -       -     (100)     -       -       -       -       -       -           100
+  P11       -       -       -      (50)    (60)     -       -       -       -       -           110
+  P12       -       -       -       -     (120)     -       -       -       -       -           120
+  P13       -       -       -       -      (20)   (110)     -       -       -       -           130
+  P14       -       -       -       -       -     (110)    (30)     -       -       -           140
+  P15       -       -       -       -       -       -     (150)     -       -       -           150
+  P16       -       -       -       -       -       -      (60)   (100)     -       -           160
+  P17       -       -       -       -       -       -       -     (160)    (10)     -           170
+  P18       -       -       -       -       -       -       -       -     (180)     -           180
+  P19       -       -       -       -       -       -       -       -      (90)   (100)         190
+  P20       -       -       -       -       -       -       -       -       -     (200)         200
+  -----------------------------------------------------------------------------------------------------
+  Comm.    120     140     160     180     200     220     240     260     280     300   
+
+  Cases de base : 29 (attendu : 29)
+
+  POTENTIELS
+  --------------------------------------------------
+    Fournisseurs : u[P1]=0  u[P2]=10  u[P3]=20  u[P4]=30  u[P5]=39  u[P6]=50  u[P7]=60  u[P8]=70  u[P9]=80  u[P10]=90  u[P11]=100  u[P12]=110  u[P13]=120  u[P14]=130  u[P15]=140  u[P16]=150  u[P17]=160  u[P18]=170  u[P19]=180  u[P20]=190
+    Clients      : v[C1]=1  v[C2]=2  v[C3]=3  v[C4]=4  v[C5]=5  v[C6]=6  v[C7]=7  v[C8]=8  v[C9]=9  v[C10]=10
+
+
+===========================================================================
+  TABLE DES COUTS POTENTIELS  (u_i + v_j)
+===========================================================================
+             C1    C2    C3    C4    C5    C6    C7    C8    C9   C10  
+  -------------------------------------------------------------------------
+  P1       1     2     3     4     5     6     7     8     9     10  
+  P2       11    12    13    14    15    16    17    18    19    20  
+  P3       21    22    23    24    25    26    27    28    29    30  
+  P4       31    32    33    34    35    36    37    38    39    40  
+  P5       40    41    42    43    44    45    46    47    48    49  
+  P6       51    52    53    54    55    56    57    58    59    60  
+  P7       61    62    63    64    65    66    67    68    69    70  
+  P8       71    72    73    74    75    76    77    78    79    80  
+  P9       81    82    83    84    85    86    87    88    89    90  
+  P10      91    92    93    94    95    96    97    98    99   100  
+  P11     101   102   103   104   105   106   107   108   109   110  
+  P12     111   112   113   114   115   116   117   118   119   120  
+  P13     121   122   123   124   125   126   127   128   129   130  
+  P14     131   132   133   134   135   136   137   138   139   140  
+  P15     141   142   143   144   145   146   147   148   149   150  
+  P16     151   152   153   154   155   156   157   158   159   160  
+  P17     161   162   163   164   165   166   167   168   169   170  
+  P18     171   172   173   174   175   176   177   178   179   180  
+  P19     181   182   183   184   185   186   187   188   189   190  
+  P20     191   192   193   194   195   196   197   198   199   200  
+
+
+===========================================================================
+  TABLE DES COUTS MARGINAUX  (a_ij - u_i - v_j)
+  (cases de base affichees comme '--')
+===========================================================================
+             C1    C2    C3    C4    C5    C6    C7    C8    C9   C10  
+  -------------------------------------------------------------------------
+  P1       --    0     0     0     0     0     0     0     0     0   
+  P2       --    0     0     0     0     0     0     0     0     0   
+  P3       --    0     0     0     0     0     0     0     0     0   
+  P4       --    0     0     0     0     0     0     0     0     0   
+  P5       1     --    1     1     1     1     1     1     1     1   
+  P6       --    --    0     0     0     0     0     0     0     0   
+  P7       0     --    --    0     0     0     0     0     0     0   
+  P8       0     0     --    0     0     0     0     0     0     0   
+  P9       0     0     --    --    0     0     0     0     0     0   
+  P10      0     0     0     --    0     0     0     0     0     0   
+  P11      0     0     0     --    --    0     0     0     0     0   
+  P12      0     0     0     0     --    0     0     0     0     0   
+  P13      0     0     0     0     --    --    0     0     0     0   
+  P14      0     0     0     0     0     --    --    0     0     0   
+  P15      0     0     0     0     0     0     --    0     0     0   
+  P16      0     0     0     0     0     0     --    --    0     0   
+  P17      0     0     0     0     0     0     0     --    --    0   
+  P18      0     0     0     0     0     0     0     0     --    0   
+  P19      0     0     0     0     0     0     0     0     --    --  
+  P20      0     0     0     0     0     0     0     0     0     --  
+
+  *** SOLUTION OPTIMALE ATTEINTE ***
+
+=================================================================
+  RESULTAT FINAL
+=================================================================
+
+=======================================================================================================
+  PROPOSITION OPTIMALE
+=======================================================================================================
+              C1      C2      C3      C4      C5      C6      C7      C8      C9     C10      Provis.
+  -----------------------------------------------------------------------------------------------------
+  P1       (10)     -       -       -       -       -       -       -       -       -            10
+  P2       (20)     -       -       -       -       -       -       -       -       -            20
+  P3       (30)     -       -       -       -       -       -       -       -       -            30
+  P4       (40)     -       -       -       -       -       -       -       -       -            40
+  P5        -      (50)     -       -       -       -       -       -       -       -            50
+  P6       (20)    (40)     -       -       -       -       -       -       -       -            60
+  P7        -      (50)    (20)     -       -       -       -       -       -       -            70
+  P8        -       -      (80)     -       -       -       -       -       -       -            80
+  P9        -       -      (60)    (30)     -       -       -       -       -       -            90
+  P10       -       -       -     (100)     -       -       -       -       -       -           100
+  P11       -       -       -      (50)    (60)     -       -       -       -       -           110
+  P12       -       -       -       -     (120)     -       -       -       -       -           120
+  P13       -       -       -       -      (20)   (110)     -       -       -       -           130
+  P14       -       -       -       -       -     (110)    (30)     -       -       -           140
+  P15       -       -       -       -       -       -     (150)     -       -       -           150
+  P16       -       -       -       -       -       -      (60)   (100)     -       -           160
+  P17       -       -       -       -       -       -       -     (160)    (10)     -           170
+  P18       -       -       -       -       -       -       -       -     (180)     -           180
+  P19       -       -       -       -       -       -       -       -      (90)   (100)         190
+  P20       -       -       -       -       -       -       -       -       -     (200)         200
+  -----------------------------------------------------------------------------------------------------
+  Comm.    120     140     160     180     200     220     240     260     280     300   
+
+  Cout total optimal : 279150

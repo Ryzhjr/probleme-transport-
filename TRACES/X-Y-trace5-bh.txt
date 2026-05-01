@@ -1,0 +1,139 @@
+======================================================================
+TRACE PROBLEME 5
+======================================================================
+
+=================================================================
+  Fichier : donnees/probleme5.txt
+  Algorithme initial : Balas-Hammer
+=================================================================
+
+==============================================
+  MATRICE DES COUTS
+==============================================
+             C1      C2      C3      Provis.
+  --------------------------------------------
+  P1           5       7       8        25
+  P2           6       8       5        25
+  P3           6       7       7        25
+  --------------------------------------------
+  Comm.        35      20      20
+
+
+============================================================
+  ALGORITHME BALAS-HAMMER
+============================================================
+
+  --- Iteration 1 ---
+  Penalites lignes  : P1=2, P2=1, P3=1
+  Penalites colonnes: C1=1, C2=0, C3=2
+  Penalite maximale = 2 sur ligne P1
+  Affectation b[P1][C1] = 25  (cout=5)
+  => Fermeture de la ligne P1
+
+  --- Iteration 2 ---
+  Penalites lignes  : P2=1, P3=1
+  Penalites colonnes: C1=0, C2=1, C3=2
+  Penalite maximale = 2 sur colonne C3
+  Affectation b[P2][C3] = 20  (cout=5)
+  => Fermeture de la colonne C3
+
+  --- Iteration 3 ---
+  Penalites lignes  : P2=2, P3=1
+  Penalites colonnes: C1=0, C2=1
+  Penalite maximale = 2 sur ligne P2
+  Affectation b[P2][C1] = 5  (cout=6)
+  => Fermeture de la ligne P2
+
+  --- Iteration 4 ---
+  Penalites lignes  : P3=1
+  Penalites colonnes: C1=6, C2=7
+  Penalite maximale = 7 sur colonne C2
+  Affectation b[P3][C2] = 20  (cout=7)
+  => Fermeture de la colonne C2
+
+  --- Iteration 5 ---
+  Penalites lignes  : P3=6
+  Penalites colonnes: C1=6
+  Penalite maximale = 6 sur ligne P3
+  Affectation b[P3][C1] = 5  (cout=6)
+  => Fermeture de la ligne P3
+  => Fermeture de la colonne C1
+  => 5 cases de base (attendu : 5)
+
+  Cout de la proposition initiale : 425
+
+==============================================
+  PROPOSITION INITIALE
+==============================================
+             C1      C2      C3      Provis.
+  --------------------------------------------
+  P1      (25)     -       -            25
+  P2      (5)      -      (20)          25
+  P3      (5)     (20)     -            25
+  --------------------------------------------
+  Comm.     35      20      20   
+
+
+#################################################################
+  MARCHE-PIED - Iteration 1
+#################################################################
+
+  Cout total courant : 425
+
+==============================================
+  PROPOSITION DE TRANSPORT
+==============================================
+             C1      C2      C3      Provis.
+  --------------------------------------------
+  P1      (25)     -       -            25
+  P2      (5)      -      (20)          25
+  P3      (5)     (20)     -            25
+  --------------------------------------------
+  Comm.     35      20      20   
+
+  Cases de base : 5 (attendu : 5)
+
+  POTENTIELS
+  --------------------------------------------------
+    Fournisseurs : u[P1]=0  u[P2]=1  u[P3]=1
+    Clients      : v[C1]=5  v[C2]=6  v[C3]=4
+
+
+================================
+  TABLE DES COUTS POTENTIELS  (u_i + v_j)
+================================
+            C1    C2    C3  
+  ------------------------------
+  P1      5     6     4   
+  P2      6     7     5   
+  P3      6     7     5   
+
+
+================================
+  TABLE DES COUTS MARGINAUX  (a_ij - u_i - v_j)
+  (cases de base affichees comme '--')
+================================
+            C1    C2    C3  
+  ------------------------------
+  P1      --    1     4   
+  P2      --    1     --  
+  P3      --    --    2   
+
+  *** SOLUTION OPTIMALE ATTEINTE ***
+
+=================================================================
+  RESULTAT FINAL
+=================================================================
+
+==============================================
+  PROPOSITION OPTIMALE
+==============================================
+             C1      C2      C3      Provis.
+  --------------------------------------------
+  P1      (25)     -       -            25
+  P2      (5)      -      (20)          25
+  P3      (5)     (20)     -            25
+  --------------------------------------------
+  Comm.     35      20      20   
+
+  Cout total optimal : 425

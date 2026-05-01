@@ -1,0 +1,119 @@
+======================================================================
+TRACE PROBLEME 4
+======================================================================
+
+=================================================================
+  Fichier : donnees/probleme4.txt
+  Algorithme initial : Balas-Hammer
+=================================================================
+
+======================================
+  MATRICE DES COUTS
+======================================
+             C1      C2      Provis.
+  ------------------------------------
+  P1          30       1       600
+  P2           1      30       500
+  ------------------------------------
+  Comm.       100    1000
+
+
+============================================================
+  ALGORITHME BALAS-HAMMER
+============================================================
+
+  --- Iteration 1 ---
+  Penalites lignes  : P1=29, P2=29
+  Penalites colonnes: C1=29, C2=29
+  Penalite maximale = 29 sur ligne P1
+  Affectation b[P1][C2] = 600  (cout=1)
+  => Fermeture de la ligne P1
+
+  --- Iteration 2 ---
+  Penalites lignes  : P2=29
+  Penalites colonnes: C1=1, C2=30
+  Penalite maximale = 30 sur colonne C2
+  Affectation b[P2][C2] = 400  (cout=30)
+  => Fermeture de la colonne C2
+
+  --- Iteration 3 ---
+  Penalites lignes  : P2=1
+  Penalites colonnes: C1=1
+  Penalite maximale = 1 sur ligne P2
+  Affectation b[P2][C1] = 100  (cout=1)
+  => Fermeture de la ligne P2
+  => Fermeture de la colonne C1
+  => 3 cases de base (attendu : 3)
+
+  Cout de la proposition initiale : 12700
+
+======================================
+  PROPOSITION INITIALE
+======================================
+             C1      C2      Provis.
+  ------------------------------------
+  P1       -     (600)         600
+  P2     (100)   (400)         500
+  ------------------------------------
+  Comm.    100     1000  
+
+
+#################################################################
+  MARCHE-PIED - Iteration 1
+#################################################################
+
+  Cout total courant : 12700
+
+======================================
+  PROPOSITION DE TRANSPORT
+======================================
+             C1      C2      Provis.
+  ------------------------------------
+  P1       -     (600)         600
+  P2     (100)   (400)         500
+  ------------------------------------
+  Comm.    100     1000  
+
+  Cases de base : 3 (attendu : 3)
+
+  POTENTIELS
+  --------------------------------------------------
+    Fournisseurs : u[P1]=0  u[P2]=29
+    Clients      : v[C1]=-28  v[C2]=1
+
+
+==========================
+  TABLE DES COUTS POTENTIELS  (u_i + v_j)
+==========================
+            C1    C2  
+  ------------------------
+  P1     -28    1   
+  P2      1     30  
+
+
+==========================
+  TABLE DES COUTS MARGINAUX  (a_ij - u_i - v_j)
+  (cases de base affichees comme '--')
+==========================
+            C1    C2  
+  ------------------------
+  P1      58    --  
+  P2      --    --  
+
+  *** SOLUTION OPTIMALE ATTEINTE ***
+
+=================================================================
+  RESULTAT FINAL
+=================================================================
+
+======================================
+  PROPOSITION OPTIMALE
+======================================
+             C1      C2      Provis.
+  ------------------------------------
+  P1       -     (600)         600
+  P2     (100)   (400)         500
+  ------------------------------------
+  Comm.    100     1000  
+
+  Cout total optimal : 12700
