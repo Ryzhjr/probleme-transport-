@@ -1,4 +1,4 @@
-#  2. AFFICHAGE DES TABLEAUX
+#  AFFICHAGE DES TABLEAUX
 def _lw(n, m, A, provisions, commandes):
     """Largeur de colonne pour l'alignement."""
     w = 4
