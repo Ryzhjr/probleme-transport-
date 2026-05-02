@@ -1,21 +1,8 @@
-# ============================================================
-#  3. ALGORITHME NORD-OUEST
-# ============================================================
-
+#  ALGORITHME NORD-OUEST
 def nord_ouest(n, m, provisions, commandes):
     """
     Proposition initiale par la methode du coin Nord-Ouest.
     Retourne (proposition, base_set).
-
-    Pseudo-code :
-      i, j <- 0, 0
-      Tant que i < n et j < m :
-        b[i][j] <- min(prov[i], comm[j])
-        prov[i] -= val ; comm[j] -= val
-        Si prov[i] == 0 et comm[j] == 0 (degenere) :
-          avancer i, puis j seulement si on n'est pas sur la derniere colonne
-        Sinon si prov[i] == 0 : i++
-        Sinon : j++
     """
     print("\n" + "=" * 60)
     print("  ALGORITHME NORD-OUEST")
@@ -36,7 +23,6 @@ def nord_ouest(n, m, provisions, commandes):
         print(f"    Affectation b[P{i+1}][C{j+1}] = {val}")
 
         if prov[i] == 0 and comm[j] == 0:
-            # Cas degenere : avancer les deux, mais j seulement si possible
             i += 1
             if i < n and j + 1 < m:
                 j += 1
