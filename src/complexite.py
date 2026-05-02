@@ -8,10 +8,7 @@ from src.marche_pied import calculer_potentiels, trouver_cycle_pour_arete
 from src.balas_hammer import _calculer_penalites  
 
 
-# ============================================================
-#  13. ETUDE DE COMPLEXITE
-# ============================================================
-
+# ETUDE DE COMPLEXITE
 def generer_probleme_aleatoire(n):
     """
     Genere un probleme equilibre de taille n x n.
@@ -180,8 +177,8 @@ def etude_complexite():
         print("matplotlib non disponible.")
         HAS_PLOT = False
 
-    valeurs_n = [10, 40, 100, 400]   # Pour l'etude complete : [10, 40, 100, 400, 1000, 4000, 10000]
-    nb_rep = 10                        # Pour l'etude complete : 100
+    valeurs_n = [10, 40, 100, 400,1000]   # Pour l'etude complete, seulement 40000 et 10000 ^prennent plusieurs jours/mois : [10, 40, 100, 400, 1000, 4000, 10000]
+    nb_rep = 100                 
 
     res = {
         'theta_NO': {n: [] for n in valeurs_n},
