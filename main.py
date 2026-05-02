@@ -16,11 +16,6 @@ from src.utils import cout_total
 from src.complexite import etude_complexite
 
 
-
-# ============================================================
-# RESOLUTION COMPLETE
-# ============================================================
-
 def resoudre_probleme(fichier, algo):
     print("\n" + "=" * 65)
     print(f"  Fichier : {fichier}")
@@ -31,7 +26,6 @@ def resoudre_probleme(fichier, algo):
 
     afficher_matrice_couts(n, m, A, provisions, commandes)
 
-    # Solution initiale
     if algo == 'NO':
         prop_init, base_init = nord_ouest(n, m, provisions, commandes)
     else:
