@@ -10,19 +10,14 @@ from src.balas_hammer import _calculer_penalites
 
 # ETUDE DE COMPLEXITE
 def generer_probleme_aleatoire(n):
-    """
-    Genere un probleme equilibre de taille n x n.
+    """Genere un probleme equilibre de taille n x n.
     Les provisions et commandes sont construites via une matrice temp
-    telle que sum(Pi) = sum(Cj).
-    """
+    telle que sum(Pi) = sum(Cj)."""
     A    = [[random.randint(1, 100) for _ in range(n)] for _ in range(n)]
     temp = [[random.randint(1, 100) for _ in range(n)] for _ in range(n)]
     provisions = [sum(temp[i])            for i in range(n)]
     commandes  = [sum(temp[i][j] for i in range(n)) for j in range(n)]
     return A, provisions, commandes
-
-
-# --- Versions silencieuses (sans print) pour les mesures ---
 
 def _no_silent(n, m, provisions, commandes):
     prov = list(provisions); comm = list(commandes)
@@ -72,11 +67,9 @@ def _bh_silent(n, m, A, provisions, commandes):
 
 
 def _mp_silent(n, m, A, prop_init, base_init, provisions, commandes):
-    """Marche-pied sans affichage pour mesure de performance."""
     prop = copy.deepcopy(prop_init)
     base = set(base_init)
     for _ in range(500):
-        # Correction degenerescence (silencieuse)
         for __ in range(200):
             g = _adj(n, m, base)
             visite = {}; parent = {}; cycle = None
@@ -115,7 +108,6 @@ def _mp_silent(n, m, A, prop_init, base_init, provisions, commandes):
             for i, j in mc:
                 prop[i][j] -= delta
                 if prop[i][j] == 0: base.discard((i, j))
-        # Connexite silencieuse
         actifs = set(k for k in range(n+m) if _adj(n, m, base)[k])
         if actifs:
             vis2 = set(); q2 = deque([next(iter(actifs))]); vis2.add(next(iter(actifs)))
@@ -135,7 +127,6 @@ def _mp_silent(n, m, A, prop_init, base_init, provisions, commandes):
                         for v3 in _adj(n, m, tb)[u3]:
                             if v3 not in v2s: v2s.add(v3); q3.append(v3)
                     if v2s == act2: base.add((i, j)); prop[i][j] = 0; break
-        # Potentiels et marginaux
         u, v = calculer_potentiels(n, m, A, base)
         best = None; bv = 0
         for i in range(n):
