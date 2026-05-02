@@ -55,10 +55,6 @@ def resoudre_probleme(fichier, algo):
     return prop_opt, base_opt, cout_opt
 
 
-# ============================================================
-# MENU PRINCIPAL
-# ============================================================
-
 def menu_principal():
     print("\n" + "=" * 65)
     print("  RESOLUTION DE PROBLEMES DE TRANSPORT")
@@ -73,16 +69,10 @@ def menu_principal():
 
         choix = input("\nVotre choix : ").strip()
 
-        # ==============================
-        # QUITTER
-        # ==============================
         if choix == '0':
             print("Au revoir !")
             break
-
-        # ==============================
-        # PROBLEME
-        # ==============================
+            
         elif choix == '1':
 
             print("\nChoisissez un probleme :")
@@ -126,9 +116,6 @@ def menu_principal():
 
             input("\nAppuie sur Entrée pour revenir au menu...")
 
-        # ==============================
-        # COMPLEXITE
-        # ==============================
         elif choix == '2':
             print("\nLancement de l'etude de complexite...\n")
 
@@ -139,16 +126,8 @@ def menu_principal():
 
             input("\nAppuie sur Entrée pour revenir au menu...")
 
-        # ==============================
-        # ERREUR
-        # ==============================
         else:
             print("Choix invalide. Recommence.")
-
-
-# ============================================================
-# LANCEMENT
-# ============================================================
 
 if __name__ == "__main__":
     menu_principal()
