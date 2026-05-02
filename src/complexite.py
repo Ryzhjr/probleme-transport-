@@ -13,10 +13,10 @@ def generer_probleme_aleatoire(n):
     """Genere un probleme equilibre de taille n x n.
     Les provisions et commandes sont construites via une matrice temp
     telle que sum(Pi) = sum(Cj)."""
-    A    = [[random.randint(1, 100) for _ in range(n)] for _ in range(n)]
+    A = [[random.randint(1, 100) for _ in range(n)] for _ in range(n)]
     temp = [[random.randint(1, 100) for _ in range(n)] for _ in range(n)]
     provisions = [sum(temp[i])            for i in range(n)]
-    commandes  = [sum(temp[i][j] for i in range(n)) for j in range(n)]
+    commandes = [sum(temp[i][j] for i in range(n)) for j in range(n)]
     return A, provisions, commandes
 
 def _no_silent(n, m, provisions, commandes):
