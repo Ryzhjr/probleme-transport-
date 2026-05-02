@@ -1,16 +1,10 @@
-# ============================================================
-#  5. COUT TOTAL
-# ============================================================
-
+# COUT TOTAL
 def cout_total(n, m, A, proposition):
     """Calcule le cout total d'une proposition de transport."""
     return sum(A[i][j] * proposition[i][j] for i in range(n) for j in range(m))
 
 
-# ============================================================
-#  6. GRAPHE BIPARTI : ADJACENCE, CYCLE, CONNEXITE
-# ============================================================
-
+#  GRAPHE BIPARTI : ADJACENCE, CYCLE, CONNEXITE
 def _lbl(k, n):
     """Label d'un noeud : P(i+1) ou C(j+1)."""
     return f"P{k+1}" if k < n else f"C{k-n+1}"
