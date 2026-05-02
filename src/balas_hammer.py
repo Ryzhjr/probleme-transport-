@@ -1,6 +1,4 @@
-# ============================================================
-#  4. ALGORITHME BALAS-HAMMER
-# ============================================================
+# ALGORITHME BALAS-HAMMER
 
 def _calculer_penalites(n, m, A, prov, comm, ligne_fermee, col_fermee):
     """
